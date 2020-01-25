@@ -1,0 +1,4 @@
+{
+    "mongoURI" :"mongodb+srv://chriswang:chris0901@plan-kmjx8.mongodb.net/test?retryWrites=true&w=majority",
+    "jwtToken": "chrisSecret"
+}
