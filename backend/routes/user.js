@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
 const User = require("../models/User");
+const Profile = require("../models/Profile");
 const config = require("config");
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const authMiddleware = require("../authMiddleware");
 
 //
 router.get("/", (req, res) => res.send("users routing"));
@@ -40,7 +42,7 @@ router.post(
         name,
         email,
         password,
-        gravatar
+        avatar
       });
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(user.password, salt);
@@ -63,5 +65,16 @@ router.post(
     }
   }
 );
+//Delte a user and profile
+//@route /api/profile
+//Token required
+router.delete("/", authMiddleware, (req, res) => {
+  Promise.all([
+    User.findByIdAndRemove(req.user.id, { useFindAndModify: true }),
+    Profile.findOneAndRemove({ user: req.user.id }, { useFindAndModify: true })
+  ])
+    .then(res.json({ msg: "user and profile deleted" }))
+    .catch(err => console.error(err));
+});
 
 module.exports = router;

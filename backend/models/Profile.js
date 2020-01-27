@@ -6,7 +6,8 @@ const ProfileSchema = new mongoose.Schema({
     ref: "User"
   },
   points: {
-    type: Number
+    type: Number,
+    default: 0
   },
   friends: [
     {
@@ -21,12 +22,10 @@ const ProfileSchema = new mongoose.Schema({
     type: String
   },
   hobbies: {
-    type: String,
-    required: true
+    type: [String]
   },
   skills: {
-    type: [String],
-    required: true
+    type: [String]
   },
   bio: {
     type: String
@@ -81,6 +80,9 @@ const ProfileSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  birthday: {
+    type: Date
   }
 });
 module.exports = mongoose.model("profile", ProfileSchema);

@@ -9,7 +9,7 @@ connectDB();
 app.use(express.json({ extended: false }));
 
 app.get("/", (req, res) => res.send("API RUNNING"));
-app.use("/api/user", require("./backend/routes/users"));
-// app.use("/api/profile", require("./backend/routes/profiles"));
+app.use("/api/user", require("./backend/routes/user"));
+app.use("/api/profile", require("./backend/routes/profile"));
 
 app.listen(PORT, () => console.log(`Server started on PORT ${PORT}`));
