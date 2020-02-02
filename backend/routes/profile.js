@@ -176,7 +176,6 @@ router.put(
         name: req.body.name,
         email: req.body.email
       });
-
       const friend_profile = await Profile.findOne({ user: friend.id });
 
       if (!friend) {
@@ -195,6 +194,61 @@ router.put(
       await friend_profile.save();
       res.json(friend_profile);
       console.log("Friend request sent");
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+// Accept or decline a friend request
+//@userid The user who sent the request
+//@route api/profile/response_request
+
+router.put(
+  "/response_request/:userid",
+  [
+    authMiddleware,
+    check("action").custom(action => {
+      if (!["accept", "decline"].includes(action)) {
+        throw new Error("Only accept or decline");
+      }
+      return true;
+    })
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const profile = await Profile.findOne({ user: req.user.id });
+      if (!profile.friend_requests.includes(req.params.userid)) {
+        return res
+          .status(400)
+          .json({ msg: "This user didn't send a friend request" });
+      }
+
+      if (req.headers.action.toString() == "accept") {
+        // get the profile of the person who sent the friend request
+        const sender_profile = await Profile.findOne({
+          user: req.params.userid
+        });
+
+        sender_profile.friends.unshift(profile.user);
+        profile.friends.unshift(sender_profile.user);
+        // remove the user from friend requests
+        profile.friend_requests = profile.friend_requests.filter(
+          request => request != req.params.userid
+        );
+        Promise.all([profile.save(), sender_profile.save()]);
+        res.json(profile);
+      } else {
+        rofile.friend_requests = profile.friend_requests.filter(
+          request => request != req.params.userid
+        );
+        await profile.save();
+        res.json(profile);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send("Server Error");
