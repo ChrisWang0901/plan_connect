@@ -2,11 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const connectDB = require("./config/db");
-
-connectDB();
-
-//Init bodyparser
+const profile = require("./backend/models/Profile");
 app.use(express.json({ extended: false }));
+connectDB();
 
 app.get("/", (req, res) => res.send("API RUNNING"));
 app.use("/api/user", require("./backend/routes/user"));

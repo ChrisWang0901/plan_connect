@@ -4,6 +4,7 @@ const app = express();
 const authMiddleware = require("../authMiddleware");
 const { check, validationResult } = require("express-validator");
 const Profile = require("../models/Profile");
+const User = require("../models/User");
 
 //Get all profiles
 //@route /api/profile/
@@ -147,6 +148,53 @@ router.put(
       profile.education.unshift(edu);
       await profile.save();
       res.json(profile);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// Send a new friend request
+//@route /api/profile/friend_request
+
+router.put(
+  "/friend_request",
+  authMiddleware,
+  [
+    check("name", "Please enter the name").exists(),
+    check("email", "Invalid email").isEmail()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const profile = await Profile.findOne({ user: req.user.id });
+      const friend = await User.findOne({
+        name: req.body.name,
+        email: req.body.email
+      });
+
+      const friend_profile = await Profile.findOne({ user: friend.id });
+
+      if (!friend) {
+        return res.status(400).json({ msg: "User not found" });
+      }
+      // check if they are friends already
+      if (friend_profile.friends.includes(profile.user)) {
+        return res.status(400).json({ msg: "Friend already" });
+      }
+
+      if (friend_profile.friend_requests.includes(profile.user)) {
+        return res.status(400).json({ msg: "Friend request sent already" });
+      }
+
+      friend_profile.friend_requests.unshift(profile.user);
+      await friend_profile.save();
+      res.json(friend_profile);
+      console.log("Friend request sent");
     } catch (error) {
       console.error(error);
       res.status(500).send("Server Error");

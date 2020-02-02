@@ -15,6 +15,12 @@ const ProfileSchema = new mongoose.Schema({
       ref: "User"
     }
   ],
+  friend_requests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ],
   job: {
     type: String
   },
