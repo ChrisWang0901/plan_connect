@@ -228,7 +228,7 @@ router.put(
           .json({ msg: "This user didn't send a friend request" });
       }
 
-      if (req.headers.action.toString() == "accept") {
+      if (req.headers.action.toString() === "accept") {
         // get the profile of the person who sent the friend request
         const sender_profile = await Profile.findOne({
           user: req.params.userid
@@ -243,7 +243,7 @@ router.put(
         Promise.all([profile.save(), sender_profile.save()]);
         res.json(profile);
       } else {
-        rofile.friend_requests = profile.friend_requests.filter(
+        profile.friend_requests = profile.friend_requests.filter(
           request => request != req.params.userid
         );
         await profile.save();
