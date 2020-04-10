@@ -26,7 +26,7 @@ router.post(
   "/",
   [
     check("email", "Invalid email").isEmail(),
-    check("password", "Please enter the password").exists()
+    check("password", "Please enter the password").exists(),
   ],
   async (req, res) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
@@ -43,13 +43,13 @@ router.post(
 
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
-        return res.status(400).josn({ error: "Invalid login or password" });
+        return res.status(400).json({ error: "Invalid login or password" });
       }
 
       const payload = {
         user: {
-          id: user.id
-        }
+          id: user.id,
+        },
       };
       jwt.sign(
         payload,
