@@ -16,11 +16,9 @@ router.get("/", (req, res) => res.send("users routing"));
 router.post(
   "/",
   [
-    check("name", "Enter a name")
-      .not()
-      .isEmpty(),
+    check("name", "Enter a name").not().isEmpty(),
     check("email", "Invalid email").isEmail(),
-    check("password", "Invalid password").isLength({ min: 7 })
+    check("password", "Invalid password").isLength({ min: 6 }),
   ],
   async (req, res) => {
     const error = validationResult(req);
@@ -36,13 +34,13 @@ router.post(
       const avatar = gravatar.url(email, {
         s: "200",
         r: "pg",
-        d: "mp"
+        d: "mp",
       });
       user = new User({
         name,
         email,
         password,
-        avatar
+        avatar,
       });
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(user.password, salt);
@@ -70,11 +68,14 @@ router.post(
 //Token required
 router.delete("/", authMiddleware, (req, res) => {
   Promise.all([
-    User.findByIdAndRemove(req.user.id, { useFindAndModify: true }),
-    Profile.findOneAndRemove({ user: req.user.id }, { useFindAndModify: true })
+    User.findByIdAndRemove(req.user.id, { useFindAndModify: false }),
+    Profile.findOneAndRemove(
+      { user: req.user.id },
+      { useFindAndModify: false }
+    ),
   ])
     .then(res.json({ msg: "user and profile deleted" }))
-    .catch(err => console.error(err));
+    .catch((err) => console.error(err));
 });
 
 module.exports = router;

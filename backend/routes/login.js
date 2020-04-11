@@ -8,6 +8,7 @@ const bcrypt = require("bcryptjs");
 const config = require("config");
 
 // Get user's info using x-auth token
+// @route /api/login
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");

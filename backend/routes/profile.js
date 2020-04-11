@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const app = express();
 const authMiddleware = require("../authMiddleware");
 const { check, validationResult } = require("express-validator");
 const Profile = require("../models/Profile");
@@ -44,9 +43,7 @@ router.post(
   "/",
   [
     authMiddleware,
-    check("hobbies", "Enter at least one hobby you like")
-      .not()
-      .isEmpty()
+    check("hobbies", "Enter at least one hobby you like").not().isEmpty(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -62,13 +59,17 @@ router.post(
       //Add logged in user to profile
       profile.user = req.user.id;
 
-      //Transform hobbies skills to array
-      profile.hobbies = req.body.hobbies.split(",").map(hobby => hobby.trim());
+      //Transform hobbies  to array
+      profile.hobbies = req.body.hobbies
+        .split(",")
+        .map((hobby) => hobby.trim());
 
       console.log(profile);
 
       if (req.body.skills) {
-        profile.skills = req.body.skills.split(",").map(skill => skill.trim());
+        profile.skills = req.body.skills
+          .split(",")
+          .map((skill) => skill.trim());
       }
 
       const new_profile = await Profile.findOneAndUpdate(
@@ -97,10 +98,10 @@ router.put("/update", authMiddleware, async (req, res) => {
     let body = req.body;
     // formatting skills and hobbies to array type
     if (body.skills) {
-      body.skills = body.skills.split(",").map(skill => skill.trim());
+      body.skills = body.skills.split(",").map((skill) => skill.trim());
     }
     if (body.hobbies) {
-      body.hobbies = body.hobbies.split(",").map(hobby => hobby.trim());
+      body.hobbies = body.hobbies.split(",").map((hobby) => hobby.trim());
     }
 
     const new_profile = await Profile.findOneAndUpdate(
@@ -121,19 +122,11 @@ router.put(
   [
     authMiddleware,
     [
-      check("school", "School is required")
-        .not()
-        .isEmpty(),
-      check("degree", "Degree is required")
-        .not()
-        .isEmpty(),
-      check("from", "From date is required")
-        .not()
-        .isEmpty(),
-      check("fieldofstudy", "Major is required")
-        .not()
-        .isEmpty()
-    ]
+      check("school", "School is required").not().isEmpty(),
+      check("degree", "Degree is required").not().isEmpty(),
+      check("from", "From date is required").not().isEmpty(),
+      check("fieldofstudy", "Major is required").not().isEmpty(),
+    ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -163,7 +156,7 @@ router.put(
   authMiddleware,
   [
     check("name", "Please enter the name").exists(),
-    check("email", "Invalid email").isEmail()
+    check("email", "Invalid email").isEmail(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -174,7 +167,7 @@ router.put(
       const profile = await Profile.findOne({ user: req.user.id });
       const friend = await User.findOne({
         name: req.body.name,
-        email: req.body.email
+        email: req.body.email,
       });
       const friend_profile = await Profile.findOne({ user: friend.id });
 
@@ -208,12 +201,12 @@ router.put(
   "/response_request/:userid",
   [
     authMiddleware,
-    check("action").custom(action => {
+    check("action").custom((action) => {
       if (!["accept", "decline"].includes(action)) {
         throw new Error("Only accept or decline");
       }
       return true;
-    })
+    }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -231,20 +224,20 @@ router.put(
       if (req.headers.action.toString() === "accept") {
         // get the profile of the person who sent the friend request
         const sender_profile = await Profile.findOne({
-          user: req.params.userid
+          user: req.params.userid,
         });
 
         sender_profile.friends.unshift(profile.user);
         profile.friends.unshift(sender_profile.user);
         // remove the user from friend requests
         profile.friend_requests = profile.friend_requests.filter(
-          request => request != req.params.userid
+          (request) => request != req.params.userid
         );
         Promise.all([profile.save(), sender_profile.save()]);
         res.json(profile);
       } else {
         profile.friend_requests = profile.friend_requests.filter(
-          request => request != req.params.userid
+          (request) => request != req.params.userid
         );
         await profile.save();
         res.json(profile);
