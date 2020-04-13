@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"nodemon server"
+    "start": "nodemon server",
+    "plan": "npm start --prefix plan",
+    "dev": "concurrently \"npm start\" \"npm run plan\""
   },
   "author": "Chris Wang",
   "license": "ISC",
