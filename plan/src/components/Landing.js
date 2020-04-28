@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 const Landing = () => {
   return (
     <section className="landing">
@@ -10,12 +10,12 @@ const Landing = () => {
           Join PlanConnect, and start sharing ideas and plans with other people.
         </p>
         <div className="buttons">
-          <a href="register.html" className="btn btn-primary hvr-grow-shadow">
+          <Link to="/register" className="btn btn-primary hvr-grow-shadow">
             Sign Up
-          </a>
-          <a href="login.html" className="btn btn-primary hvr-grow-shadow">
+          </Link>
+          <Link to="/login" className="btn btn-primary hvr-grow-shadow">
             Login
-          </a>
+          </Link>
         </div>
       </div>
     </section>
